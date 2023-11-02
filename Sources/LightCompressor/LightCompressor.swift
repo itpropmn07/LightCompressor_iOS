@@ -199,7 +199,7 @@ public struct LightCompressor {
             //start writing from video reader
             videoReader?.startReading()
             videoWriter?.startSession(atSourceTime: CMTime.zero)
-            let processingQueue = DispatchQueue(label: "processingQueue1", qos: .background)
+            let processingQueue = DispatchQueue(label: "processingQueue1", qos: .userInitiated)
             
             var isFirstBuffer = true
             videoWriterInput.requestMediaDataWhenReady(on: processingQueue, using: {() -> Void in
@@ -232,7 +232,7 @@ public struct LightCompressor {
                                     //start writing from audio reader
                                     audioReader?.startReading()
                                     videoWriter?.startSession(atSourceTime: CMTime.zero)
-                                    let processingQueue = DispatchQueue(label: "processingQueue2", qos: .background)
+                                    let processingQueue = DispatchQueue(label: "processingQueue2", qos: .userInitiated)
                                     
                                     audioWriterInput.requestMediaDataWhenReady(on: processingQueue, using: {
                                         while audioWriterInput.isReadyForMoreMediaData {
