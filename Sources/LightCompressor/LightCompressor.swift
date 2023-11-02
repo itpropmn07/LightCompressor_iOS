@@ -110,14 +110,14 @@ public struct LightCompressor {
         }
         
         var frameCount = 0
+
+        // Compression started
+        completion(.onStart)
         
         for (index, video) in videos.enumerated() {
             let source = video.source
             let destination = video.destination
             let configuration = video.configuration
-            
-            // Compression started
-            completion(.onStart)
             
             let videoAsset = AVURLAsset(url: source)
             guard let videoTrack = videoAsset.tracks(withMediaType: AVMediaType.video).first else {
