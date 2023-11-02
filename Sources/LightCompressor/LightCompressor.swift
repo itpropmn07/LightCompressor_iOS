@@ -110,9 +110,34 @@ public struct LightCompressor {
         }
         
         var frameCount = 0
-
+        var totalFrames = Int64(0)
+        
         // Compression started
         completion(.onStart)
+
+        // calculate all frame
+        for (index, video) in videos.enumerated() {
+            let source = video.source
+            let destination = video.destination
+            let configuration = video.configuration
+            
+            let videoAsset = AVURLAsset(url: source)
+            guard let videoTrack = videoAsset.tracks(withMediaType: AVMediaType.video).first else {
+                continue
+            }
+            
+            let bitrate = videoTrack.estimatedDataRate
+            // Check for a min video bitrate before compression
+            if configuration.isMinBitrateCheckEnabled && bitrate <= MIN_BITRATE {
+                continue
+            }
+            
+            // Total Frames
+            let durationInSeconds = videoAsset.duration.seconds
+            let frameRate = videoTrack.nominalFrameRate
+            totalFrames += Int64(ceil(durationInSeconds * Double(frameRate)))
+        }
+        let progress = Progress(totalUnitCount: totalFrames)
         
         for (index, video) in videos.enumerated() {
             let source = video.source
@@ -147,15 +172,6 @@ public struct LightCompressor {
             
             let newWidth = size.width
             let newHeight = size.height
-            
-            // Total Frames
-            let durationInSeconds = videoAsset.duration.seconds
-            let frameRate = videoTrack.nominalFrameRate
-            let totalFrames = ceil(durationInSeconds * Double(frameRate))
-            
-            // Progress
-            let totalUnits = Int64(totalFrames)
-            let progress = Progress(totalUnitCount: totalUnits)
             
             // Setup video writer input
             let videoWriterInput = AVAssetWriterInput(mediaType: AVMediaType.video, outputSettings: getVideoWriterSettings(bitrate: newBitrate, width: newWidth, height: newHeight))
